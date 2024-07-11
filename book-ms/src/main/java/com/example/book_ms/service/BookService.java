@@ -9,7 +9,6 @@ import com.example.book_ms.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class BookService implements IBookService {
     @Override
     public List<BookDto> getAllBooks() {
         return bookRepository.findAll().stream().map(book -> {
-            AuthorDto authorDto = authorClient.getAuthorById(book.getId_author());
+            AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
             BookDto bookDto = bookMapper.toDto(book);
             return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
         }).collect(Collectors.toList());
@@ -36,27 +35,26 @@ public class BookService implements IBookService {
     public BookDto getBookById(Long id) {
         Book book = bookRepository.findById(id).get();
         BookDto bookDto = bookMapper.toDto(book);
-        AuthorDto authorDto = authorClient.getAuthorById(book.getId_author());
+        AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
         return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
     }
 
     @Override
     public BookDto createBook(Book book) {
         BookDto bookDto = bookMapper.toDto(bookRepository.save(book));
-        AuthorDto authorDto = authorClient.getAuthorById(book.getId_author());
+        AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
         return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
     }
 
     @Override
     public BookDto updateBook(Long id, Book bookDetails) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
+        Book book = bookRepository.findById(id).get();
         book.setTitle(bookDetails.getTitle());
         book.setGenre(bookDetails.getGenre());
-        book.setId_author(bookDetails.getId_author()); // Update author if needed
+        book.setAuthorId(bookDetails.getAuthorId()); // Update author if needed
         BookDto bookDto = bookMapper.toDto(book);
         bookRepository.save(book);
-        AuthorDto authorDto = authorClient.getAuthorById(book.getId_author());
+        AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
         return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
     }
 
@@ -66,14 +64,17 @@ public class BookService implements IBookService {
     }
 
     @Override
-    public List<BookDto> getBooksById(List<String> BooksId) {
-        List<BookDto> bookDtoList = new ArrayList<>();
-        for (String bookId : BooksId) {
-            var book = bookRepository.findById(Long.parseLong(bookId)).get();
-            BookDto bookDto = bookMapper.toDto(book);
-            AuthorDto authorDto = authorClient.getAuthorById(book.getId_author());
-            bookDtoList.add(new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto));
-        }
-        return bookDtoList;
+    public List<BookDto> getBooksById(List<String> bookIds) {
+
+        return bookIds.stream()
+                .map(bookId -> {
+                    long id = Long.parseLong(bookId);
+                    Book book = bookRepository.findById(id).get();
+                    BookDto bookDto = bookMapper.toDto(book);
+                    AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId()); // Assuming this method exists
+                    return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
+                })
+                .collect(Collectors.toList());
     }
+
 }

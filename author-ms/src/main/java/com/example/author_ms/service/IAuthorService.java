@@ -1,18 +1,19 @@
 package com.example.author_ms.service;
 
+import com.example.author_ms.dto.AuthorDto;
 import com.example.author_ms.model.Author;
 
 import java.util.List;
 
 public interface IAuthorService {
 
-    List<Author> getAllAuthors();
+    List<AuthorDto> getAllAuthors();
 
-    Author getAuthorById(String id);
+    AuthorDto getAuthorById(String id);
 
-    Author createAuthor(Author author);
+    AuthorDto createAuthor(Author author);
 
-    Author updateAuthor(String id, Author updatedAuthor);
+    AuthorDto updateAuthor(String id, Author updatedAuthor);
 
     void deleteAuthor(String id);
 }
