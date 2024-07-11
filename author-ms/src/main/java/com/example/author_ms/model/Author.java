@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "Author")
-public class Author implements Serializable {
+public class Author  {
     @Id
     private String id;
     private String name;

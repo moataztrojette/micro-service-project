@@ -42,7 +42,7 @@ public class AuthorService implements IAuthorService {
     public AuthorDto getAuthorById(String id) {
         try {
 
-            var author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Author not found with id: " + id));;
+            var author = authorRepository.findById(id).get();;
             var authorDto = authorMapper.toDto(author);
             var books = this.getBooksById(author.getBookIds());
             return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
@@ -68,6 +68,7 @@ public class AuthorService implements IAuthorService {
         author.setEmail(authorSaved.getEmail());
         author.setNationality(authorSaved.getNationality());
         author.setBookIds(authorSaved.getBookIds());
+        authorRepository.save(author);
         var authorDto = authorMapper.toDto(author);
         var books = this.getBooksById(authorSaved.getBookIds());
         return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);

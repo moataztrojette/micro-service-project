@@ -73,8 +73,7 @@ public class BookService implements IBookService {
                     BookDto bookDto = bookMapper.toDto(book);
                     AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId()); // Assuming this method exists
                     return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
     }
 
 }
