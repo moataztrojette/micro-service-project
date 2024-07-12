@@ -34,10 +34,12 @@ public class AuthorService implements IAuthorService {
     }
 
     public AuthorDto getAuthorById(String id) {
-        try {
-            Author author = authorRepository.findById(id).get();
+        Optional<Author> optionalAuthor = authorRepository.findById(id);
+
+        if (optionalAuthor.isPresent()) {
+            Author author = optionalAuthor.get();
             return authorMapper.toDto(author);
-        } catch (Exception e) {
+        } else {
             throw new IllegalArgumentException("Author not found with id: " + id);
         }
     }
@@ -49,33 +51,35 @@ public class AuthorService implements IAuthorService {
 
 
     public AuthorDto updateAuthor(String id, Author authorSaved) {
-        Author author = authorRepository.findById(id).get();
-        author.setName(authorSaved.getName());
-        author.setEmail(authorSaved.getEmail());
-        author.setNationality(authorSaved.getNationality());
-        authorRepository.save(author);
-        return  authorMapper.toDto(author);
+        Optional<Author> optionalAuthor = authorRepository.findById(id);
+
+        if (optionalAuthor.isPresent()) {
+            Author author = optionalAuthor.get();
+            author.setName(authorSaved.getName());
+            author.setEmail(authorSaved.getEmail());
+            author.setNationality(authorSaved.getNationality());
+            authorRepository.save(author);
+            return authorMapper.toDto(author);
+        } else {
+            throw new IllegalArgumentException("Author not found with id: " + id);
+        }
     }
 
     public void deleteAuthor(String id) {
         Optional<Author> optionalAuthor = authorRepository.findById(id);
         if (optionalAuthor.isEmpty()) {
-            throw new RuntimeException("Author not found with id: " + id);
+            throw new IllegalArgumentException("Author not found with id: " + id);
         }
         Author author = optionalAuthor.get();
         authorRepository.delete(author);
     }
 
     public List<BookDto> getBooksById(List<String> bookIds) {
-       try {
            String baseUrl = Constant.bookUrl + "/byIds";
            String url = baseUrl + "?bookIds=" + String.join(",", bookIds);
            ResponseEntity<BookDto[]> responseEntity = restTemplate.getForEntity(url, BookDto[].class);
-           BookDto[] bookDtos = responseEntity.getBody();
-           assert bookDtos != null;
-           return Arrays.asList(bookDtos);
-       }catch (Exception e){
-           return null;
-       }
+           BookDto[] bookDto = responseEntity.getBody();
+        assert bookDto != null;
+        return Arrays.asList(bookDto);
     }
 }
