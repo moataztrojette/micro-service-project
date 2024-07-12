@@ -42,7 +42,10 @@ public class AuthorService implements IAuthorService {
 
         if (optionalAuthor.isPresent()) {
             Author author = optionalAuthor.get();
-            return authorMapper.toDto(author);
+            var authorDto =  authorMapper.toDto(author);
+            var books = getBooksById(author.getId());
+            authorDto.setBooks(books);
+            return authorDto;
         } else {
             throw new IllegalArgumentException("Author not found with id: " + id);
         }
