@@ -15,7 +15,7 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> handleIllegalArgumentException(IllegalArgumentException exception) {
         Map<String, Object> map = new HashMap<>();
-        map.put("error", HttpStatus.NOT_FOUND.value());
+        map.put("error", HttpStatus.INTERNAL_SERVER_ERROR.value());
         map.put("message", exception.getMessage());
         return map;
     }

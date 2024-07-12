@@ -6,13 +6,14 @@ import com.example.book_ms.dto.BookDto;
 import com.example.book_ms.mapper.BookMapper;
 import com.example.book_ms.model.Book;
 import com.example.book_ms.repository.BookRepository;
-import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 @Slf4j
@@ -27,54 +28,47 @@ public class BookService implements IBookService {
 
     @Override
     public List<BookDto> getAllBooks() {
-      try {
-          return bookRepository.findAll().stream().map(book -> {
-              AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
-              BookDto bookDto = bookMapper.toDto(book);
-              return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
-          }).collect(Collectors.toList());
-      }catch (FeignException ex){
-          throw ex;
-      }
+        return bookRepository.findAll().stream().map(book -> {
+            AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
+            BookDto bookDto = bookMapper.toDto(book);
+            return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
+        }).collect(Collectors.toList());
     }
 
     @Override
     public BookDto getBookById(Long id) {
-        try {
-            Book book = bookRepository.findById(id).get();
+        Optional<Book> optionalBook = bookRepository.findById(id);
+
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
             BookDto bookDto = bookMapper.toDto(book);
             AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
             return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
-        }catch (FeignException ex) {
-            throw ex;
+        } else {
+            throw new IllegalArgumentException("Book not found with id: " + id);
         }
-
     }
 
     @Override
     public BookDto createBook(Book book) {
-        try {
-            BookDto bookDto = bookMapper.toDto(bookRepository.save(book));
-            AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
-            return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
-        } catch (FeignException ex) {
-            throw ex;
-        }
+        BookDto bookDto = bookMapper.toDto(bookRepository.save(book));
+        AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
+        return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
     }
 
     @Override
     public BookDto updateBook(Long id, Book bookDetails) {
-        try {
-            Book book = bookRepository.findById(id).get();
+        Optional<Book> optionalBook = bookRepository.findById(id);
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
             book.setTitle(bookDetails.getTitle());
             book.setGenre(bookDetails.getGenre());
             book.setAuthorId(bookDetails.getAuthorId()); // Update author if needed
-            BookDto bookDto = bookMapper.toDto(book);
             bookRepository.save(book);
             AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
-            return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
-        }catch (FeignException ex){
-            throw ex;
+            return new BookDto(book.getId(), book.getTitle(), book.getGenre(), authorDto);
+        } else {
+            throw new IllegalArgumentException("Book not found");
         }
     }
 
@@ -85,19 +79,19 @@ public class BookService implements IBookService {
 
     @Override
     public List<BookDto> getBooksById(List<String> bookIds) {
-
-        try {
-            return bookIds.stream()
-                    .map(bookId -> {
-                        long id = Long.parseLong(bookId);
-                        Book book = bookRepository.findById(id).get();
+        return bookIds.stream()
+                .map(bookId -> {
+                    long id = Long.parseLong(bookId);
+                    Optional<Book> Optionalbook = bookRepository.findById(Long.parseLong(bookId));
+                    if (Optionalbook.isPresent()) {
+                        Book book = Optionalbook.get();
                         BookDto bookDto = bookMapper.toDto(book);
                         AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId()); // Assuming this method exists
                         return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
-                    }).collect(Collectors.toList());
-        }catch (FeignException ex){
-            throw ex;
-        }
+                    }else {
+                        throw new IllegalArgumentException("Book not found with id: " + id);
+                    }
+                }).collect(Collectors.toList());
     }
 
 }
