@@ -39,9 +39,9 @@ public class BookController {
         bookService.deleteBook(id);
     }
 
-    @GetMapping("/byIds")
-    public List<BookDto> getBooksById(@RequestParam List<String> bookIds) {
-            List<BookDto> bookDtoList = bookService.getBooksById(bookIds);
+    @GetMapping("/author/{authorId}")
+    public List<BookDto> getBooksById(@PathVariable String authorId) {
+            List<BookDto> bookDtoList = bookService.getBooksByAuthor(authorId);
             return bookDtoList;
     }
 }

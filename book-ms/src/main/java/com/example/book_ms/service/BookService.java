@@ -78,20 +78,12 @@ public class BookService implements IBookService {
     }
 
     @Override
-    public List<BookDto> getBooksById(List<String> bookIds) {
-        return bookIds.stream()
-                .map(bookId -> {
-                    long id = Long.parseLong(bookId);
-                    Optional<Book> Optionalbook = bookRepository.findById(Long.parseLong(bookId));
-                    if (Optionalbook.isPresent()) {
-                        Book book = Optionalbook.get();
-                        BookDto bookDto = bookMapper.toDto(book);
-                        AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId()); // Assuming this method exists
-                        return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
-                    }else {
-                        throw new IllegalArgumentException("Book not found with id: " + id);
-                    }
-                }).collect(Collectors.toList());
+    public List<BookDto> getBooksByAuthor(String authorId) {
+        List<Book> books = bookRepository.findByAuthorId(authorId);
+        return books.stream()
+                .map(bookMapper::toDto)
+                .collect(Collectors.toList());
     }
+
 
 }

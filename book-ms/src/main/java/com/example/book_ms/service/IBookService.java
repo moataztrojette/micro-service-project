@@ -16,5 +16,6 @@ public interface IBookService {
 
     void deleteBook(Long id);
 
-    List<BookDto> getBooksById(List<String> BooksId);
+    List<BookDto> getBooksByAuthor(String auhtorId);
+
 }

@@ -29,8 +29,12 @@ public class AuthorService implements IAuthorService {
 
 
     public List<AuthorDto> getAllAuthors() {
-        return authorRepository.findAll().stream().map(author ->
-                authorMapper.toDto(author)).collect(Collectors.toList());
+        return authorRepository.findAll().stream().map(author -> {
+            var books = getBooksById(author.getId());
+            AuthorDto authorDto = authorMapper.toDto(author);
+            authorDto.setBooks(books);
+            return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
+        }).collect(Collectors.toList());
     }
 
     public AuthorDto getAuthorById(String id) {
@@ -75,12 +79,13 @@ public class AuthorService implements IAuthorService {
         return "Author with id " + id + " deleted successfully.";
     }
 
-    public List<BookDto> getBooksById(List<String> bookIds) {
-           String baseUrl = Constant.bookUrl + "/byIds";
-           String url = baseUrl + "?bookIds=" + String.join(",", bookIds);
-           ResponseEntity<BookDto[]> responseEntity = restTemplate.getForEntity(url, BookDto[].class);
-           BookDto[] bookDto = responseEntity.getBody();
-        assert bookDto != null;
-        return Arrays.asList(bookDto);
+    public List<BookDto> getBooksById(String authorId) {
+        String url = Constant.bookUrl + "/author/" + authorId;
+        ResponseEntity<BookDto[]> responseEntity = restTemplate.getForEntity(url, BookDto[].class);
+        BookDto[] bookDtos = responseEntity.getBody();
+        if (bookDtos == null) {
+            throw new IllegalStateException("Failed to fetch books from the external service");
+        }
+        return Arrays.asList(bookDtos);
     }
 }
