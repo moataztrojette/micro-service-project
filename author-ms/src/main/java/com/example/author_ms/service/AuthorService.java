@@ -65,13 +65,14 @@ public class AuthorService implements IAuthorService {
         }
     }
 
-    public void deleteAuthor(String id) {
+    public String deleteAuthor(String id) {
         Optional<Author> optionalAuthor = authorRepository.findById(id);
         if (optionalAuthor.isEmpty()) {
             throw new IllegalArgumentException("Author not found with id: " + id);
         }
         Author author = optionalAuthor.get();
         authorRepository.delete(author);
+        return "Author with id " + id + " deleted successfully.";
     }
 
     public List<BookDto> getBooksById(List<String> bookIds) {

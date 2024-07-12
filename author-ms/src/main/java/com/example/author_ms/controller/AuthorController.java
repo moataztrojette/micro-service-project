@@ -40,7 +40,7 @@ public class AuthorController {
 
     // DELETE an author by ID
     @DeleteMapping("/{id}")
-    public void deleteAuthor(@PathVariable String id) {
-        authorService.deleteAuthor(id);
+    public String deleteAuthor(@PathVariable String id) {
+        return authorService.deleteAuthor(id);
     }
 }

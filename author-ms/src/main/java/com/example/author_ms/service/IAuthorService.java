@@ -15,5 +15,5 @@ public interface IAuthorService {
 
     AuthorDto updateAuthor(String id, Author updatedAuthor);
 
-    void deleteAuthor(String id);
+    String deleteAuthor(String id);
 }
