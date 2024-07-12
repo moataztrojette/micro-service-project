@@ -4,8 +4,6 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,5 +15,4 @@ public class Author  {
     private String name;
     private String email;
     private String nationality;
-    private List<String> bookIds;
 }

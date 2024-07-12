@@ -12,7 +12,6 @@ import java.io.Serializable;
 @Entity
 @Builder
 public class Book implements Serializable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long    id;

@@ -18,8 +18,5 @@ public class BookMapper implements IBookMapper{
         return builder.build();
     }
 
-    @Override
-    public BookDto toEntity(BookDto book) {
-        return null;
-    }
+
 }

@@ -6,17 +6,14 @@ import com.example.author_ms.dto.AuthorDto;
 import com.example.author_ms.dto.BookDto;
 import com.example.author_ms.model.Author;
 import com.example.author_ms.repository.AuthorRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,33 +29,22 @@ public class AuthorService implements IAuthorService {
 
 
     public List<AuthorDto> getAllAuthors() {
-        return authorRepository.findAll().stream().map(author -> {
-            AuthorDto authorDto = authorMapper.toDto(author);
-            var books = this.getBooksById(author.getBookIds());
-            return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
-        }).collect(Collectors.toList());
+        return authorRepository.findAll().stream().map(author ->
+                authorMapper.toDto(author)).collect(Collectors.toList());
     }
 
     public AuthorDto getAuthorById(String id) {
         try {
-
-            var author = authorRepository.findById(id).get();;
-            var authorDto = authorMapper.toDto(author);
-            var books = this.getBooksById(author.getBookIds());
-            return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
-        }catch (Exception e){
-            return null;
+            Author author = authorRepository.findById(id).get();
+            return authorMapper.toDto(author);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Author not found with id: " + id);
         }
     }
 
     public AuthorDto createAuthor(Author author) {
         Author savedAuthor = authorRepository.save(author);
-        AuthorDto authorDto = authorMapper.toDto(savedAuthor);
-
-        List<String> bookIds = author.getBookIds(); // Assuming getBookIds() returns List<String>
-        var books = getBooksById(bookIds);
-        return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
-
+        return authorMapper.toDto(savedAuthor);
     }
 
 
@@ -67,11 +53,8 @@ public class AuthorService implements IAuthorService {
         author.setName(authorSaved.getName());
         author.setEmail(authorSaved.getEmail());
         author.setNationality(authorSaved.getNationality());
-        author.setBookIds(authorSaved.getBookIds());
         authorRepository.save(author);
-        var authorDto = authorMapper.toDto(author);
-        var books = this.getBooksById(authorSaved.getBookIds());
-        return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
+        return  authorMapper.toDto(author);
     }
 
     public void deleteAuthor(String id) {
@@ -87,12 +70,10 @@ public class AuthorService implements IAuthorService {
        try {
            String baseUrl = Constant.bookUrl + "/byIds";
            String url = baseUrl + "?bookIds=" + String.join(",", bookIds);
-
            ResponseEntity<BookDto[]> responseEntity = restTemplate.getForEntity(url, BookDto[].class);
            BookDto[] bookDtos = responseEntity.getBody();
-
-           List<BookDto> books = Arrays.asList(bookDtos);
-           return books;
+           assert bookDtos != null;
+           return Arrays.asList(bookDtos);
        }catch (Exception e){
            return null;
        }
