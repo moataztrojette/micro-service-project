@@ -1,5 +1,6 @@
 # Project exclude paths
 /author-ms/target/
 /book-ms/target/
+/gateway-service/target/
 /server-discovery/target/
 /.idea/
