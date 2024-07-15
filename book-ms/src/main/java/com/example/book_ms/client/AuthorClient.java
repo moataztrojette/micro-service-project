@@ -9,4 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface AuthorClient {
     @GetMapping("/api/author/{id}")
     AuthorDto getAuthorById(@PathVariable String id);;
+
+
 }

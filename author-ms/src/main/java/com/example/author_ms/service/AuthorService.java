@@ -1,21 +1,20 @@
 package com.example.author_ms.service;
 
+import com.example.author_ms.client.BookClient;
 import com.example.author_ms.mapper.AuthorMapper;
-import com.example.author_ms.constant.Constant;
 import com.example.author_ms.dto.AuthorDto;
 import com.example.author_ms.dto.BookDto;
 import com.example.author_ms.model.Author;
 import com.example.author_ms.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.http.ResponseEntity;
 
 
 @RequiredArgsConstructor
@@ -26,7 +25,8 @@ public class AuthorService implements IAuthorService {
     @Autowired
     private AuthorMapper authorMapper;
     private final RestTemplate restTemplate;
-
+    @Autowired
+    private BookClient bookClient;
 
     public List<AuthorDto> getAllAuthors() {
         return authorRepository.findAll().stream().map(author -> {
@@ -83,12 +83,36 @@ public class AuthorService implements IAuthorService {
     }
 
     public List<BookDto> getBooksById(String authorId) {
-        String url = Constant.bookUrl + "/author/" + authorId;
-        ResponseEntity<BookDto[]> responseEntity = restTemplate.getForEntity(url, BookDto[].class);
+        String url = buildUrl(authorId);
+        HttpHeaders headers = createHeadersWithAuthorization();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<BookDto[]> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                BookDto[].class
+        );
         BookDto[] bookDtos = responseEntity.getBody();
         if (bookDtos == null) {
             throw new IllegalStateException("Failed to fetch books from the external service");
         }
-        return Arrays.asList(bookDtos);
+        return List.of(bookDtos);
     }
+
+    private String buildUrl(String authorId) {
+        String serverPort = config().get("serverPort");
+        return "http://localhost:" + serverPort + "/api/book/author/" + authorId;
+    }
+    private HttpHeaders createHeadersWithAuthorization() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "token");  // Replace "token" with actual token retrieval method
+        return headers;
+    }
+
+
+    public Map<String, String> config(){
+        return bookClient.getConfigApp();
+    }
+
 }

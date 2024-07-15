@@ -1,20 +1,18 @@
 package com.example.book_ms.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import com.example.book_ms.client.AuthorClient;
 import com.example.book_ms.dto.AuthorDto;
 import com.example.book_ms.dto.BookDto;
 import com.example.book_ms.mapper.BookMapper;
 import com.example.book_ms.model.Book;
 import com.example.book_ms.repository.BookRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.core.env.Environment;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
-
-
 @Service
 @Slf4j
 public class BookService implements IBookService {
@@ -24,7 +22,8 @@ public class BookService implements IBookService {
     private AuthorClient authorClient;
     @Autowired
     private BookMapper bookMapper;
-
+    @Autowired
+    private Environment env;
 
     @Override
     public List<BookDto> getAllBooks() {
@@ -85,5 +84,12 @@ public class BookService implements IBookService {
                 .collect(Collectors.toList());
     }
 
-
+    public  Map<String, String> getConfigApp() {
+        Map<String, String> config = new HashMap<>();
+        var port = env.getProperty("local.server.port");
+        var profile = env.getProperty("spring.application.name");
+        config.put("serverPort", port);
+        config.put("profile", profile);
+        return config;
+    }
 }

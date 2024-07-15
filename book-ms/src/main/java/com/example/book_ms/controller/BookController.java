@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/book")
@@ -43,5 +44,10 @@ public class BookController {
     public List<BookDto> getBooksById(@PathVariable String authorId) {
             List<BookDto> bookDtoList = bookService.getBooksByAuthor(authorId);
             return bookDtoList;
+    }
+
+    @GetMapping("/config")
+    public Map<String, String> getConfigApp(){
+        return bookService.getConfigApp();
     }
 }
