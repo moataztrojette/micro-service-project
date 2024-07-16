@@ -4,6 +4,7 @@ import com.example.author_ms.model.Author;
 import com.example.author_ms.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -44,5 +45,8 @@ public class AuthorController {
         return authorService.deleteAuthor(id);
     }
 
-
+    @GetMapping("/all")
+    public List<AuthorDto> getAuthors() {
+        return authorService.getAuthors();
+    }
 }

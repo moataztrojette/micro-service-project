@@ -34,8 +34,6 @@ public class AuthorService implements IAuthorService {
 
 
     public List<AuthorDto> getAllAuthors() {
-        List<Author> authors = authorRepository.findAll();
-        sendAuthors(authors);
         return authorRepository.findAll().stream().map(author -> {
             var books = getBooksById(author.getId());
             AuthorDto authorDto = authorMapper.toDto(author);
@@ -123,6 +121,17 @@ public class AuthorService implements IAuthorService {
     }
     private void sendAuthors(List<Author> authors) {
         kafkaTemplate.send(TOPIC, authors);
+    }
+
+    public List<AuthorDto> getAuthors() {
+        List<Author> authors = authorRepository.findAll();
+        return authors.stream().map(author -> {
+            var books = getBooksById(author.getId());
+            AuthorDto authorDto = authorMapper.toDto(author);
+            authorDto.setBooks(books);
+            sendAuthors(Collections.singletonList(author));
+            return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
+        }).collect(Collectors.toList());
     }
 
 }
