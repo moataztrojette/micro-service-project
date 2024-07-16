@@ -1,9 +1,11 @@
 package com.example.book_ms.controller;
 
+import com.example.book_ms.dto.AuthorDto;
 import com.example.book_ms.dto.BookDto;
 import com.example.book_ms.model.Book;
 import com.example.book_ms.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,5 +51,11 @@ public class BookController {
     @GetMapping("/config")
     public Map<String, String> getConfigApp(){
         return bookService.getConfigApp();
+    }
+
+    @GetMapping("/received-authors")
+    public ResponseEntity<List<AuthorDto>> getReceivedAuthors() {
+        List<AuthorDto> authors = bookService.getReceivedAuthors();
+        return ResponseEntity.ok(authors);
     }
 }
