@@ -1,6 +1,7 @@
 package com.example.book_ms.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import com.example.book_ms.client.AuthorClient;
 import com.example.book_ms.dto.AuthorDto;
@@ -24,6 +25,8 @@ public class BookService implements IBookService {
     private BookMapper bookMapper;
     @Autowired
     private Environment env;
+    private final List<AuthorDto> receivedAuthors = new ArrayList<>();
+
 
     @Override
     public List<BookDto> getAllBooks() {
@@ -92,4 +95,13 @@ public class BookService implements IBookService {
         config.put("profile", profile);
         return config;
     }
+    @KafkaListener(topics = "author_topic", groupId = "book-group")
+    public void listen(List<AuthorDto> authors) {
+        System.out.println("Received Authors: " + authors);
+        receivedAuthors.addAll(authors);
+    }
+    public List<AuthorDto> getReceivedAuthors() {
+        return new ArrayList<>(receivedAuthors);
+    }
+
 }

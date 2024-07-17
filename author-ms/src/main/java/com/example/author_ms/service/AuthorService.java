@@ -9,6 +9,7 @@ import com.example.author_ms.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +28,10 @@ public class AuthorService implements IAuthorService {
     private final RestTemplate restTemplate;
     @Autowired
     private BookClient bookClient;
+    @Autowired
+    private final KafkaTemplate<String, List<Author>> kafkaTemplate;
+    private static final String TOPIC = "author_topic";
+
 
     public List<AuthorDto> getAllAuthors() {
         return authorRepository.findAll().stream().map(author -> {
@@ -113,6 +118,20 @@ public class AuthorService implements IAuthorService {
 
     public Map<String, String> config(){
         return bookClient.getConfigApp();
+    }
+    private void sendAuthors(List<Author> authors) {
+        kafkaTemplate.send(TOPIC, authors);
+    }
+
+    public List<AuthorDto> getAuthors() {
+        List<Author> authors = authorRepository.findAll();
+        return authors.stream().map(author -> {
+            var books = getBooksById(author.getId());
+            AuthorDto authorDto = authorMapper.toDto(author);
+            authorDto.setBooks(books);
+            sendAuthors(Collections.singletonList(author));
+            return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
+        }).collect(Collectors.toList());
     }
 
 }
