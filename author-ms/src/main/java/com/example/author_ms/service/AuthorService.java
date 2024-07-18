@@ -106,8 +106,8 @@ public class AuthorService implements IAuthorService {
     }
 
     private String buildUrl(String authorId) {
-        //String serverPort = config().get("serverPort");
-        return "http://book-ms:8081/api/book/author/" + authorId;
+        String serverPort = config().get("serverPort");
+        return "http://book-ms:"+serverPort+"/api/book/author/" + authorId;
     }
     private HttpHeaders createHeadersWithAuthorization() {
         HttpHeaders headers = new HttpHeaders();
@@ -126,11 +126,11 @@ public class AuthorService implements IAuthorService {
     public List<AuthorDto> getAuthors() {
         List<Author> authors = authorRepository.findAll();
         return authors.stream().map(author -> {
-            //var books = getBooksById(author.getId());
+            var books = getBooksById(author.getId());
             AuthorDto authorDto = authorMapper.toDto(author);
-            //authorDto.setBooks(books);
-            //sendAuthors(Collections.singletonList(author));
-            return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), null);
+            authorDto.setBooks(books);
+            sendAuthors(Collections.singletonList(author));
+            return new AuthorDto(authorDto.getId(), authorDto.getName(), authorDto.getEmail(), authorDto.getNationality(), books);
         }).collect(Collectors.toList());
     }
 
