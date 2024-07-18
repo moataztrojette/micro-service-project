@@ -53,8 +53,8 @@ public class BookService implements IBookService {
 
     @Override
     public BookDto createBook(Book book) {
-        BookDto bookDto = bookMapper.toDto(bookRepository.save(book));
         AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
+        BookDto bookDto = bookMapper.toDto(bookRepository.save(book));
         return new BookDto(bookDto.getId(), bookDto.getTitle(), bookDto.getGenre(), authorDto);
     }
 
@@ -65,7 +65,8 @@ public class BookService implements IBookService {
             Book book = optionalBook.get();
             book.setTitle(bookDetails.getTitle());
             book.setGenre(bookDetails.getGenre());
-            book.setAuthorId(bookDetails.getAuthorId()); // Update author if needed
+            AuthorDto author = authorClient.getAuthorById(bookDetails.getAuthorId());
+            book.setAuthorId(author.getId()); // Update author if needed
             bookRepository.save(book);
             AuthorDto authorDto = authorClient.getAuthorById(book.getAuthorId());
             return new BookDto(book.getId(), book.getTitle(), book.getGenre(), authorDto);

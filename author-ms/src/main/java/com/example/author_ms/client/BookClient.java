@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Map;
 
-@FeignClient(value = "BOOK-MS",url="http://localhost:8081")
+@FeignClient(value = "BOOK-MS")
 public interface BookClient {
     @GetMapping("/api/book/config")
     Map<String, String> getConfigApp();

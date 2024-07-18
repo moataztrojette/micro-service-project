@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(value = "AUTHOR-MS")
 public interface AuthorClient {
     @GetMapping("/api/author/{id}")
-    AuthorDto getAuthorById(@PathVariable String id);;
+    AuthorDto getAuthorById(@PathVariable String id);
 
 
 }

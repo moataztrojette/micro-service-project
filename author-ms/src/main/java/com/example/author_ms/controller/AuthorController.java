@@ -49,4 +49,10 @@ public class AuthorController {
     public List<AuthorDto> getAuthors() {
         return authorService.getAuthors();
     }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteAllAuthors() {
+        return ResponseEntity.ok(authorService.deleteAllAuthors());
+    }
+
 }

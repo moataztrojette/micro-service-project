@@ -15,7 +15,7 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> handleIllegalArgumentException(IllegalArgumentException exception) {
         Map<String, Object> map = new HashMap<>();
-        map.put("error", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        map.put("error", HttpStatus.NOT_FOUND.value());
         map.put("message", exception.getMessage());
         return map;
     }
@@ -25,7 +25,7 @@ public class ExceptionController {
     public Map<String, Object> handleFeignException(FeignException exception) {
         Map<String, Object> map = new HashMap<>();
         map.put("error", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        map.put("message", "Error fetching data");
+        map.put("message", "Error fetching data from micro service Author :)");
         map.put("request", extractFeignRequestDetails(exception));
         return map;
     }
